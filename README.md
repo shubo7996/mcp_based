@@ -141,7 +141,7 @@ Stored in `demo.db` (SQLite)
 
 ## 🌐 Server 1: News & Wikipedia Agent
 
-### File: `mcp-news-server/servers.py`
+### File: `mcp-news-server/news-server.py`
 
 ### 🔧 Tools
 
@@ -161,7 +161,7 @@ uv run servers.py --server_type=sse
 
 ## 🗃 Server 2: SQLite Database Agent
 
-### File: `mcp-sqlite-server/ollama_server.py`
+### File: `mcp-sqlite-server/sqlite-server.py`
 
 ### 🔧 Tools
 
