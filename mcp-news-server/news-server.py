@@ -6,7 +6,8 @@ from bs4 import BeautifulSoup
 import signal
 
 
-mcp = FastMCP('news-demo')
+#mcp = FastMCP('news-demo')
+mcp = FastMCP(name="news-reader", host="127.0.0.1", port=8001, timeout=30)
 
 def signal_handler(sig, frame):
     print("Shutting down Wikipedia Summary Agent...")

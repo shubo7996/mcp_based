@@ -2,8 +2,8 @@ import sqlite3
 import argparse
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP('sqlite-demo')
-
+#mcp = FastMCP('sqlite-demo')
+mcp = FastMCP(name="news-reader", host="127.0.0.1", port=8000, timeout=30)
 def init_db():
     conn = sqlite3.connect('demo.db')
     cursor = conn.cursor()
@@ -20,28 +20,27 @@ def init_db():
 
 @mcp.tool()
 def add_data(query: str) -> bool:
-    """Add new data to the people table using a SQL INSERT query.
+    """
+    Add a new person to the 'people' table in the database using a SQL INSERT query.
+
+    The query must insert values for the following columns:
+        - name: TEXT (required)
+        - age: INTEGER (required)
+        - profession: TEXT (required)
+
+    Note: The 'id' field is automatically generated.
 
     Args:
-        query (str): SQL INSERT query following this format:
-            INSERT INTO people (name, age, profession)
-            VALUES ('John Doe', 30, 'Engineer')
-        
-    Schema:
-        - name: Text field (required)
-        - age: Integer field (required)
-        - profession: Text field (required)
-        Note: 'id' field is auto-generated
-    
+        query (str): SQL INSERT query. 
+            Example:
+                INSERT INTO people (name, age, profession)
+                VALUES ('Alice Smith', 25, 'Developer')
+
     Returns:
-        bool: True if data was added successfully, False otherwise
-    
+        bool: True if the record was added successfully, False otherwise.
+
     Example:
-        >>> query = '''
-        ... INSERT INTO people (name, age, profession)
-        ... VALUES ('Alice Smith', 25, 'Developer')
-        ... '''
-        >>> add_data(query)
+        >>> add_data("INSERT INTO people (name, age, profession) VALUES ('Bob', 40, 'Teacher')")
         True
     """
     conn, cursor = init_db()
@@ -57,25 +56,22 @@ def add_data(query: str) -> bool:
 
 @mcp.tool()
 def read_data(query: str = "SELECT * FROM people") -> list:
-    """Read data from the people table using a SQL SELECT query.
+    """
+    Read one or more records from the 'people' table using a SQL SELECT query.
+
+    This tool is used to retrieve information about individuals from the database.
 
     Args:
-        query (str, optional): SQL SELECT query. Defaults to "SELECT * FROM people".
+        query (str, optional): SQL SELECT query to specify which fields and conditions to use.
+            Defaults to "SELECT * FROM people".
             Examples:
-            - "SELECT * FROM people"
-            - "SELECT name, age FROM people WHERE age > 25"
-            - "SELECT * FROM people ORDER BY age DESC"
-    
+                - SELECT name FROM people WHERE age > 30
+                - SELECT * FROM people ORDER BY age DESC
+
     Returns:
-        list: List of tuples containing the query results.
-              For default query, tuple format is (id, name, age, profession)
-    
+        list: A list of tuples representing the result of the query.
+
     Example:
-        >>> # Read all records
-        >>> read_data()
-        [(1, 'John Doe', 30, 'Engineer'), (2, 'Alice Smith', 25, 'Developer')]
-        
-        >>> # Read with custom query
         >>> read_data("SELECT name, profession FROM people WHERE age < 30")
         [('Alice Smith', 'Developer')]
     """
@@ -92,32 +88,28 @@ def read_data(query: str = "SELECT * FROM people") -> list:
 
 @mcp.tool()
 def update_people(query: str = "Update "):
-    """Read data from the people table using a SQL SELECT query.
+    """
+    Update records in the 'people' table using a SQL UPDATE query.
+
+    This tool is used to modify one or more fields for existing records.
 
     Args:
-        query (str, optional): SQL SELECT query. Defaults to "SELECT * FROM people".
-            Examples:
-            - "SELECT * FROM people"
-            - "SELECT name, age FROM people WHERE age > 25"
-            - "SELECT * FROM people ORDER BY age DESC"
-    
+        query (str): SQL UPDATE query that specifies new values and conditions.
+            Example:
+                UPDATE people SET age = 27 WHERE name = 'Subhamoy'
+
     Returns:
-        list: List of tuples containing the query results.
-              For default query, tuple format is (id, name, age, profession)
-    
+        str: A confirmation message or error string.
+
     Example:
-        >>> # Read all records
-        >>> read_data()
-        [(1, 'John Doe', 30, 'Engineer'), (2, 'Alice Smith', 25, 'Developer')]
-        
-        >>> # Read with custom query
-        >>> read_data("SELECT name, profession FROM people WHERE age < 30")
-        [('Alice Smith', 'Developer')]
+        >>> update_people("UPDATE people SET profession = 'Scientist' WHERE name = 'Alice Smith'")
+        "Update successful."
     """
     conn, cursor = init_db()
     try:
         cursor.execute(query)
-        return cursor.fetchall()
+        conn.commit()
+        return "Update Succefully!"
     except sqlite3.Error as e:
         print(f"Error reading data: {e}")
         return []
@@ -127,15 +119,18 @@ def update_people(query: str = "Update "):
 
 @mcp.tool()
 def delete_person(query: str):
-    """Delete records from the 'people' table using a SQL DELETE query.
+    """
+    Delete one or more records from the 'people' table using a SQL DELETE query.
+
+    Use this tool to remove entries that match the specified condition.
 
     Args:
         query (str): SQL DELETE query.
             Example:
-            - "DELETE FROM people WHERE name = 'Alice Smith'"
+                DELETE FROM people WHERE name = 'Alice Smith'
 
     Returns:
-        str: Success or error message.
+        str: A message indicating whether the deletion was successful or not.
 
     Example:
         >>> delete_person("DELETE FROM people WHERE age < 25")
